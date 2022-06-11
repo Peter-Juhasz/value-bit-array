@@ -9,6 +9,8 @@ public ref struct ValueBitArray
 
 	private readonly Span<ulong> _buffer;
 	private const int NumberOfBitsInBucket = sizeof(ulong) * 8;
+	
+	public int Count => _buffer.Length * NumberOfBitsInBucket;
 
 	public bool this[int index]
 	{
