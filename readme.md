@@ -6,7 +6,7 @@ The built-in type [BitArray](https://docs.microsoft.com/en-us/dotnet/api/system.
 The following implementation uses zero heap allocations, so it is suitable for high performance scenarios, but only where the number of elements in the bit array is small (or fits the the stack).
 
 ## Implementation
-We are going to store bits batched as unsigned integers (instead of array of booleans, because a boolean has the size of a byte) to save memory (similarly to the built type [BitArray](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Collections/src/System/Collections/BitArray.cs)). The largest integer type which supports native bit operations on most platforms is `ulong`, so we are going to use that as a storage primitive (we could use `nuint` as well for a platform independent native integer).
+We are going to store bits batched as unsigned integers (instead of array of booleans, because a boolean has the size of a byte) to save memory (similarly to the built-in type [BitArray](https://github.com/dotnet/runtime/blob/main/src/libraries/System.Collections/src/System/Collections/BitArray.cs)). The largest integer type which supports native bit operations on most platforms is `ulong`, so we are going to use that as a storage primitive (we could use `nuint` as well for a platform independent native integer).
 
 Our storage would look like this:
 ```
@@ -41,6 +41,7 @@ Now we need to calculate where is a bit with a specific index. For example bit 6
 0000000000000000000000000000000000000000000000000000000000000000 0000000000...
 ---------------------------------------------------------------- ----------...
                     sizeof(ulong) = 64 bits                         ^ index 67
+		          0-63 index                             64-127 index  
 ```
 
 To do that, we can use simple integer math:
@@ -114,16 +115,23 @@ To use our new bit array type, first we need to pre-allocate the buffer (on stac
 Span<ulong> buffer = stackalloc ulong[8]; // 8 * 64 bits = 512 bits
 var array = new ValueBitArray(buffer);
 
-var firstIsOff = array[0]; // all bits are turned off by default
-array[0] = true; // first bit
-array[511] = true; // last bit
-array[512] = true; // ArgumentOutOfRangeException
+// all bits are turned off by default
+var firstIsOff = array[0]; 
+
+array[0] = true; // set first bit to true
+var firstIsOn = array[0]; // true, read first bit
+
+array[0] = false; // set first bit back to false
+
+array[511] = true; // set very last bit to true
+
+array[512]; // out of range, ArgumentOutOfRangeException
 ```
 
 ## Appendix
 
 ### Reset
-Resetting all bits to zero can be easily implemented using the [Fill](https://docs.microsoft.com/en-us/dotnet/api/system.span-1.fill) method of `Span`:
+Resetting all bits to zero can be easily implemented using the [Fill](https://docs.microsoft.com/en-us/dotnet/api/system.span-1.fill) method of [Span](https://docs.microsoft.com/en-us/dotnet/api/system.span-1):
 ```cs
 public void Reset()
 {
