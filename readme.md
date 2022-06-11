@@ -3,6 +3,8 @@
 ## Introduction
 The built-in type [BitArray](https://docs.microsoft.com/en-us/dotnet/api/system.collections.bitarray) is a very old type, which exists in the framework since [.NET Framework 1.1](https://docs.microsoft.com/en-us/dotnet/api/system.collections.bitarray?view=netframework-1.1#applies-to). It is a general use collection, implemented as a reference type.
 
+While the built-in type [BitVector32](https://docs.microsoft.com/en-us/dotnet/api/system.collections.specialized.bitvector32) is a value type, its size is limited to 32 bits.
+
 The following implementation uses zero heap allocations, so it is suitable for high performance scenarios, but only where the number of elements in the bit array is small (or fits the the stack).
 
 ## Implementation
@@ -129,6 +131,12 @@ array[512]; // out of range, ArgumentOutOfRangeException
 ```
 
 ## Appendix
+
+### Count
+Total count of bits which can be stored in the buffer, can be easily calculated:
+```cs
+public int Count => _buffer.Length * NumberOfBitsInBucket;
+```
 
 ### Reset
 Resetting all bits to zero can be easily implemented using the [Fill](https://docs.microsoft.com/en-us/dotnet/api/system.span-1.fill) method of [Span](https://docs.microsoft.com/en-us/dotnet/api/system.span-1):
