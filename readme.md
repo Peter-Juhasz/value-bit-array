@@ -29,8 +29,9 @@ public ref struct ValueBitArray
 	{
 		_buffer = buffer;
 	}
-
+	
 	private readonly Span<ulong> _buffer;
+}
 ```
 
 *Note that the type must be a `ref struct` because it references a `Span<ulong>`.*
@@ -48,12 +49,12 @@ private const int NumberOfBitsInBucket = sizeof(ulong) * 8;
 
 public bool this[int index]
 {
-    get
-    {
-        int bucket = index / NumberOfBitsInBucket;
+	get
+	{
+		int bucket = index / NumberOfBitsInBucket;
 		int position = index % NumberOfBitsInBucket;
 		// ...
-    }
+	}
 }
 ```
 
@@ -71,11 +72,11 @@ And at this point we have everything to implement reads:
 ```cs
 public bool this[int index]
 {
-    get
-    {
-        (int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
+	get
+	{
+		(int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
 		return (_buffer[bucket] & (1ul << position)) > 0ul;
-    }
+	}
 }
 ```
 
@@ -93,9 +94,9 @@ So we can easily implement writes:
 ```cs
 public bool this[int index]
 {
-    set
+	set
 	{
-        (int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
+		(int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
 		_buffer[bucket] = value switch
 		{
 			true => _buffer[bucket] | (1ul << position),
