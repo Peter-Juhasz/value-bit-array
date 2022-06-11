@@ -8,22 +8,22 @@ public ref struct ValueBitArray
 	}
 
 	private readonly Span<ulong> _buffer;
-	private const int Size = sizeof(ulong) * 8;
+	private const int NumberOfBitsInBucket = sizeof(ulong) * 8;
 
 	public bool this[int index]
 	{
 		get
 		{
-			(int bucket, int entry) = Math.DivRem(index, Size);
-			return (_buffer[bucket] & (1ul << entry)) > 0ul;
+			(int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
+			return (_buffer[bucket] & (1ul << position)) > 0ul;
 		}
 		set
 		{
-			(int bucket, int entry) = Math.DivRem(index, Size);
+			(int bucket, int position) = Math.DivRem(index, NumberOfBitsInBucket);
 			_buffer[bucket] = value switch
 			{
-				true => _buffer[bucket] | (1ul << entry),
-				false => _buffer[bucket] & ~(1ul << entry),
+				true => _buffer[bucket] | (1ul << position),
+				false => _buffer[bucket] & ~(1ul << position),
 			};
 		}
 	}
